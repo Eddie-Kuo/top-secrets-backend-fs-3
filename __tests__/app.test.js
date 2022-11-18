@@ -28,6 +28,14 @@ describe('user routes', () => {
     });
   });
 
+  test('/POST /api/v1/users/sessions', async () => {
+    await request(app).post('/api/v1/users').send(mockUser);
+    const res = await request(app)
+      .post('/api/v1/users/sessions')
+      .send({ email: mockUser.email, password: mockUser.password });
+    expect(res.status).toEqual(200);
+  });
+
   afterAll(() => {
     pool.end();
   });
