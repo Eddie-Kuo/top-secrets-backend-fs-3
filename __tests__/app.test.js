@@ -28,12 +28,23 @@ describe('user routes', () => {
     });
   });
 
-  test('/POST /api/v1/users/sessions', async () => {
+  test('/POST /api/v1/users/sessions signs in user', async () => {
     await request(app).post('/api/v1/users').send(mockUser);
     const res = await request(app)
       .post('/api/v1/users/sessions')
       .send({ email: mockUser.email, password: mockUser.password });
     expect(res.status).toEqual(200);
+  });
+
+  test('/DELETE /api/v1/users/sessions logs out the user', async () => {
+    const agent = request.agent(app);
+
+    const user = await UserService.create({ ...mockUser });
+    await agent
+      .post('/api/v1/users/sessions')
+      .send({ email: user.email, password: user.password });
+    const res = await agent.delete('/api/v1/users/sessions');
+    expect(res.status).toEqual(204);
   });
 
   afterAll(() => {
