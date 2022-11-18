@@ -3,6 +3,8 @@ const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
 const UserService = require('../lib/services/UserService');
+// agent is a part of supertest that allows us to make and store cookies for a period of time
+// so that we can have a logged in user for a series of tests
 
 describe('user routes', () => {
   beforeEach(() => {
@@ -36,6 +38,27 @@ describe('user routes', () => {
     expect(res.status).toEqual(200);
   });
 
+  test('GET /api/v1/secrets', async () => {
+    const agent = request.agent(app);
+    await agent.post('/api/v1/users').send(mockUser);
+    // creating a user
+    await agent
+      .post('/api/v1/users/sessions')
+      .send({ email: mockUser.email, password: mockUser.password });
+    // signing in a user
+    // then showing the user details
+    const res = await agent.get('/api/v1/secrets');
+    expect(res.body[0]).toEqual({
+      id: expect.any(String),
+      title: expect.any(String),
+      description: expect.any(String),
+      createdAt: expect.any(String),
+    });
+    // for this test since we're using the agent we're awaiting the request from the agent instead of the actual app
+    // line 43 - agent is creating a mocked version of the app that we can then use for the rest of the test
+    // using app vs agent comes down to whether or not you need to be logged in for a period of time or not
+  });
+
   test('/DELETE /api/v1/users/sessions logs out the user', async () => {
     const agent = request.agent(app);
 
@@ -45,15 +68,6 @@ describe('user routes', () => {
       .send({ email: user.email, password: user.password });
     const res = await agent.delete('/api/v1/users/sessions');
     expect(res.status).toEqual(204);
-  });
-
-  test('GET /api/v1/secrets', async () => {
-    const res = await request(app).get('/api/v1/secrets');
-    expect(res.body[0]).toEqual({
-      title: expect.any(String),
-      description: expect.any(String),
-    });
-    expect(res.body).toEqual(Array);
   });
 
   afterAll(() => {
