@@ -47,6 +47,15 @@ describe('user routes', () => {
     expect(res.status).toEqual(204);
   });
 
+  test('GET /api/v1/secrets', async () => {
+    const res = await request(app).get('/api/v1/secrets');
+    expect(res.body[0]).toEqual({
+      title: expect.any(String),
+      description: expect.any(String),
+    });
+    expect(res.body).toEqual(Array);
+  });
+
   afterAll(() => {
     pool.end();
   });
