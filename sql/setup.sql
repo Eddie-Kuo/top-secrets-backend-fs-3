@@ -7,5 +7,5 @@ CREATE TABLE users(
     first_name VARCHAR NOT NULL,
     last_name VARCHAR NOT NULL,
     email VARCHAR NOT NULL,
-    passwordHash TEXT NOT NULL
+    password_hash TEXT NOT NULL
 );
